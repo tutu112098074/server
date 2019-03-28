@@ -895,9 +895,33 @@ function initCore() {
 	jQuery.globalEval = function(){};
 
 	/**
-	 * Set users locale to moment.js as soon as possible
+	 * Set users language and locale to moment.js as soon as possible
 	 */
-	moment.locale(OC.getLocale());
+	moment.locale(OC.getLanguage());
+	var localeData = {
+		months: moment.localeData().months(),
+		monthsShort: moment.localeData().monthsShort(),
+		weekdays: moment.localeData().weekdays(),
+		weekdaysShort: moment.localeData().weekdaysShort(),
+		weekdaysMin: moment.localeData().weekdaysMin(),
+		calendar: moment.localeData().calendar,
+		relativeTime: moment.localeData()._relativeTime,
+	};
+
+	function getBestParentLocale() {
+		moment.locale([
+			OC.getLocale(),
+			OC.getLocale().split('_')[0],
+			OC.getLanguage(),
+			OC.getLanguage().split('_')[0],
+			'en',
+		]);
+		return moment.localeData()._abbr;
+	}
+	localeData.parentLocale = getBestParentLocale();
+
+	moment.defineLocale('locale-and-language', localeData);
+	moment.locale('locale-and-language');
 
 	var userAgent = window.navigator.userAgent;
 	var msie = userAgent.indexOf('MSIE ');
